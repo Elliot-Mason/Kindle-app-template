@@ -1,0 +1,5 @@
+{
+  "poll_interval_ms": 30000,
+  "app_title": "Kindle Starter Template",
+  "port": 5053
+}

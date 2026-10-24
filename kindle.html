@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kindle App Template</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      color: #000000;
+      font-family: Georgia, "Caecilia", serif;
+      overflow: hidden;
+    }
+    .flash-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000000;
+      z-index: 9999;
+    }
+    .topbar {
+      width: 100%;
+      border-bottom: 3px solid #000000;
+      padding: 10px 18px;
+      font-family: sans-serif;
+      font-size: 15px;
+      font-weight: bold;
+      overflow: hidden;
+    }
+    .topbar-left { float: left; padding-top: 3px; }
+    .topbar-right { float: right; }
+    .top-btn {
+      display: inline-block;
+      border: 2px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 12px;
+      margin-left: 8px;
+      cursor: pointer;
+    }
+    .top-btn:active, .top-btn.btn-active {
+      background: #000000;
+      color: #ffffff;
+    }
+    .app-container {
+      padding: 24px;
+      text-align: center;
+    }
+    .hero-card {
+      border: 3.5px solid #000000;
+      padding: 24px 20px;
+      margin-bottom: 18px;
+      background: #ffffff;
+    }
+    .hero-title {
+      font-size: 34px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      line-height: 1.15;
+    }
+    .hero-subtitle {
+      font-family: sans-serif;
+      font-size: 20px;
+      color: #333333;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      background: #000000;
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 6px 16px;
+      margin-bottom: 12px;
+    }
+    .data-grid {
+      width: 100%;
+      border-collapse: collapse;
+      border: 3px solid #000000;
+      margin-top: 14px;
+    }
+    .data-grid td {
+      width: 50%;
+      border: 2px solid #000000;
+      padding: 14px 16px;
+      text-align: left;
+    }
+    .cell-label {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555555;
+      margin-bottom: 4px;
+    }
+    .cell-value {
+      font-family: monospace;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .controls-row {
+      display: table;
+      width: 100%;
+      margin-top: 20px;
+      table-layout: fixed;
+    }
+    .ctrl-btn {
+      display: table-cell;
+      width: 50%;
+      background: #ffffff;
+      color: #000000;
+      border: 3.5px solid #000000;
+      font-family: monospace, sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      vertical-align: middle;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .ctrl-btn + .ctrl-btn {
+      border-left: none;
+    }
+    .ctrl-btn:active, .ctrl-btn.btn-active {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    .status-msg {
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: #444444;
+      margin-top: 10px;
+      min-height: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="flash-overlay" class="flash-overlay"></div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span id="app-title">KINDLE TEMPLATE</span> &middot; <span id="clock-txt">--:--</span>
+    </div>
+    <div class="topbar-right">
+      <span class="top-btn" id="refresh-btn">Refresh</span>
+      <span class="top-btn" id="flash-btn">Flash</span>
+    </div>
+  </div>
+
+  <!-- Main View -->
+  <div class="app-container">
+    <div class="hero-card">
+      <div class="badge" id="hero-badge">RUNNING</div>
+      <div class="hero-title" id="hero-title">Kindle Paperwhite App</div>
+      <div class="hero-subtitle" id="hero-sub">758&times;1024 &middot; 212 PPI &middot; FW 5.6.1.1</div>
+
+      <table class="data-grid">
+        <tr>
+          <td>
+            <div class="cell-label">DATA VALUE A</div>
+            <div class="cell-value" id="val-a">42</div>
+          </td>
+          <td>
+            <div class="cell-label">STATUS</div>
+            <div class="cell-value" id="val-b">ONLINE</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Touch Controls -->
+    <div class="controls-row">
+      <button type="button" class="ctrl-btn" id="btn-action">&#9654; ACTION 1</button>
+      <button type="button" class="ctrl-btn" id="btn-toggle">&#8635; REFRESH DATA</button>
+    </div>
+    <div class="status-msg" id="status-msg">Ready</div>
+  </div>
+
+  <script>
+    // Strict ES5 for Kindle Paperwhite 1 (FW 5.6.1.1)
+    (function() {
+      var pollInterval = 30000;
+      var lastPoll = 0;
+
+      function updateClock() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        document.getElementById("clock-txt").innerHTML =
+          (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+      }
+
+      function fullFlashRefresh() {
+        var el = document.getElementById("flash-overlay");
+        el.style.display = "block";
+        setTimeout(function() {
+          el.style.background = "#ffffff";
+          setTimeout(function() {
+            el.style.display = "none";
+            el.style.background = "#000000";
+          }, 250);
+        }, 250);
+      }
+
+      function bindTouchButton(id, callback) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var touched = false;
+        el.addEventListener("touchstart", function(e) {
+          touched = true;
+          el.className = el.className + " btn-active";
+          callback(e);
+          setTimeout(function() {
+            el.className = el.className.replace(" btn-active", "");
+          }, 300);
+          if (e.preventDefault) e.preventDefault();
+        }, false);
+        el.addEventListener("click", function(e) {
+          if (touched) {
+            touched = false;
+            return;
+          }
+          callback(e);
+        }, false);
+      }
+
+      function pollData() {
+        lastPoll = new Date().getTime();
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/data?t=" + lastPoll, true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              if (data.title) document.getElementById("hero-title").innerHTML = data.title;
+              if (data.valueA) document.getElementById("val-a").innerHTML = data.valueA;
+              if (data.status) document.getElementById("val-b").innerHTML = data.status;
+              document.getElementById("status-msg").innerHTML = "Updated at " + (data.time || "now");
+            } catch (e) {}
+          }
+        };
+        xhr.send();
+      }
+
+      bindTouchButton("refresh-btn", function() {
+        fullFlashRefresh();
+        pollData();
+      });
+      bindTouchButton("flash-btn", fullFlashRefresh);
+      bindTouchButton("btn-toggle", function() {
+        pollData();
+      });
+      bindTouchButton("btn-action", function() {
+        document.getElementById("status-msg").innerHTML = "Action triggered!";
+      });
+
+      setInterval(function() {
+        updateClock();
+        var now = new Date().getTime();
+        if (now - lastPoll >= pollInterval) {
+          pollData();
+        }
+      }, 1000);
+
+      updateClock();
+      pollData();
+    })();
+  </script>
+</body>
+</html>

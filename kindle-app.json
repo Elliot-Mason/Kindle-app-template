@@ -1,0 +1,12 @@
+{
+  "id": "my-app",
+  "name": "My Kindle App",
+  "version": "1.0.0",
+  "description": "Starter template for Kindle Paperwhite (FW 5.6.1.1)",
+  "author": "Elliot Mason",
+  "icon": "📱",
+  "backend": "server.py",
+  "client": "kindle.html",
+  "pollIntervalMs": 30000,
+  "port": 5053
+}
