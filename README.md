@@ -27,6 +27,46 @@ A clean, modular starter template for creating web applications optimized for th
 
 ---
 
+## Running Natively on a Jailbroken Kindle (No PC Needed)
+
+You can run this app template directly on your Kindle with **zero external PC or server running**:
+
+### Prerequisites
+1. **Jailbroken Kindle Paperwhite 1** (FW 5.6.1.1 or similar).
+2. **KUAL** (Kindle Unified Application Launcher) installed.
+3. **Python 3** installed on Kindle (install NiLuJe's `python3` package via MRPI or KUAL from the MobileRead forum).
+
+### Installation Steps
+1. Connect your Kindle to your computer via USB.
+2. Copy this entire folder into the Kindle's `extensions` directory:
+   ```
+   [Kindle USB Root]
+     └── extensions/
+         └── my-app/               <-- Copy this repo here
+             ├── config.xml
+             ├── menu.json
+             ├── bin/launcher.sh
+             ├── server.py
+             ├── kindle.html
+             └── config.json       (copy from config.example.json)
+   ```
+3. Copy `config.example.json` to `config.json`.
+4. Safely eject and unplug the USB cable.
+
+### Launching on the Kindle
+1. On your Kindle home screen, tap **KUAL**.
+2. Select **Kindle App Template** &rarr; tap **Start (Standalone On-Device)**.
+3. The launcher will automatically:
+   - Prevent screensaver/sleep timeout (`preventScreenSaver = 1`).
+   - Launch `python3 server.py` in the background on `127.0.0.1:5053`.
+   - Open the Kindle Experimental Browser directly to `http://127.0.0.1:5053/kindle`.
+4. Your application will now run completely standalone!
+
+### Stopping the App
+Open **KUAL** &rarr; **Kindle App Template** &rarr; **Stop App & Re-enable Sleep**.
+
+---
+
 ## Testing in Kindle Simulator
 
 To preview this app inside the [Kindle-simulator](https://github.com/Elliot-Mason/Kindle-simulator) with simulated E-Ink Pearl ghosting and 212 PPI scaling:
@@ -40,6 +80,11 @@ python /path/to/Kindle-simulator/server.py --app .
 ## Project Structure
 
 ```
+Kindle-app-template/
+├── config.xml             # KUAL extension manifest for jailbroken Kindle
+├── menu.json              # KUAL on-device menu definition
+├── bin/
+│   └── launcher.sh        # On-device background daemon & browser launcher
 ├── kindle-app.json        # App manifest (id, name, icon, port)
 ├── server.py              # Lightweight Python backend (standard library only)
 ├── kindle.html            # E-Ink layout with ES5 touch controls
